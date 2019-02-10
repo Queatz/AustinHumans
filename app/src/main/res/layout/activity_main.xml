@@ -36,19 +36,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="@dimen/pad" />
 
-    <ImageButton style="@style/Widget.AppCompat.Button.Borderless"
-        android:id="@+id/mailButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?selectableItemBackgroundBorderless"
-        app:layout_constraintTop_toTopOf="@+id/appName"
-        app:layout_constraintBottom_toBottomOf="@+id/appName"
-        android:minWidth="48dp"
-        android:src="@drawable/ic_mail_black_24dp"
-        android:tint="@color/colorWhite"
-        app:layout_constraintEnd_toStartOf="@+id/useLocationButton"
-        android:visibility="gone"/>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/peopleRecyclerView"
         android:layout_width="0dp"

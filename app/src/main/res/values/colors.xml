@@ -9,9 +9,11 @@
     <color name="text">@color/colorBlack</color>
     <color name="textInverse">@color/colorWhite</color>
     <color name="sheet">@color/colorWhite</color>
+    <color name="notification">@color/colorWhite</color>
 
     <color name="colorLightGray">#D9D9D9</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
-    <color name="colorRed">#f00</color>
+    <color name="colorRed">#ff0000</color>
+    <color name="colorGreen">#39BF00</color>
 </resources>

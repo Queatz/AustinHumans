@@ -1,6 +1,7 @@
 package com.queatz.austinhumans
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.AttributeSet
@@ -10,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ScrollView
 import androidx.annotation.LayoutRes
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
@@ -86,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         val items = mutableListOf(
-                PersonModel("Alice"),
+                PersonModel("Alice (You)", me = true),
         PersonModel("Amanda"),
         PersonModel("Esther"),
         PersonModel("Godwin"),
@@ -121,19 +123,44 @@ class MainActivity : AppCompatActivity() {
                 { viewHolder, person: PersonModel ->
                     viewHolder.itemView.detailName.text = person.name
 
+                    if (person.me) {
+                        viewHolder.itemView.detailName.setOnClickListener {
+                            AlertDialog.Builder(this)
+                                    .setPositiveButton(R.string.change_name, { dialog, which ->  })
+                                    .show()
+                        }
+                    } else {
+                        viewHolder.itemView.detailName.setOnClickListener {  }
+                    }
+
                     val adapter = Adapter(
                             { R.layout.item_goal },
                             { GoalViewHolder(it) },
                             { viewHolder, item: String ->
                                 viewHolder.itemView.goalName.text = item
-                                viewHolder.itemView.cheerButton.text = getString(R.string.cheer_person, person.name)
+
+                                if (person.me) {
+                                    viewHolder.itemView.cheerButton.text = getString(R.string.change_goal)
+                                    viewHolder.itemView.setOnClickListener {
+                                        AlertDialog.Builder(this)
+                                                .setPositiveButton(R.string.change_goal, { dialog, which ->  })
+                                                .show()
+                                    }
+
+                                } else {
+                                    viewHolder.itemView.cheerButton.text = getString(R.string.cheer_person, person.name)
+                                    viewHolder.itemView.setOnClickListener {
+                                        startActivity(Intent(this, MessagesActivity::class.java))
+                                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                                    }
+                                }
                             }
                     )
 
                     adapter.items = mutableListOf(
-                            "Goal #1",
-                            "Goal #2",
-                            "Goal #3"
+                            "\uD83C\uDF32 Spend a week in Upstate NY",
+                            "Learn how to dance",
+                            "Start doing yoga regularly \uD83E\uDDD8"
                     )
 
                     viewHolder.itemView.goalsRecyclerView.adapter = adapter
@@ -153,8 +180,10 @@ class MainActivity : AppCompatActivity() {
         peopleDetailRecyclerView.onInterceptTouchEventListener = { view, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    peopleDetailRecyclerView.findChildViewUnder(event.x, event.y)!!.let {
+                    peopleDetailRecyclerView.findChildViewUnder(event.x, event.y)?.let {
                         peopleDetailRecyclerView.isLayoutFrozen = event.y < it.contentScrollView.paddingTop - it.contentScrollView.scrollY
+                    } ?: run {
+                        peopleDetailRecyclerView.isLayoutFrozen = false
                     }
                 }
                 MotionEvent.ACTION_UP -> { peopleDetailRecyclerView.isLayoutFrozen = false }
@@ -173,6 +202,14 @@ class MainActivity : AppCompatActivity() {
 
         val snapHelper = PagerSnapHelper()
         snapHelper.attachToRecyclerView(peopleDetailRecyclerView)
+
+        useLocationButton.setOnClickListener {
+            AlertDialog.Builder(this)
+                    .setMessage(R.string.sort_by_distance)
+                    .setNegativeButton(R.string.nope, { dialog, which ->  })
+                    .setPositiveButton(R.string.enable_location, { dialog, which ->  })
+                    .show()
+        }
     }
 }
 

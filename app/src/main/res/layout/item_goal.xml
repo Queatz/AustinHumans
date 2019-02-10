@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:text="Goal #1"
             android:padding="@dimen/pad2x"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
         <TextView
             android:id="@+id/cheerButton"
