@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimary">#bf5700</color>
+    <color name="colorPrimaryDark">#bf5700</color>
+    <color name="colorPrimaryLight">#803900</color>
+    <color name="colorAccent">#BF7030</color>
 
     <color name="backdrop">@color/colorPrimaryDark</color>
     <color name="text">@color/colorBlack</color>
     <color name="textInverse">@color/colorWhite</color>
     <color name="sheet">@color/colorWhite</color>
 
-    <color name="colorLightGray">#BFBFBF</color>
+    <color name="colorLightGray">#D9D9D9</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorRed">#f00</color>
 </resources>

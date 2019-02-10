@@ -12,9 +12,13 @@ import android.widget.ScrollView
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.queatz.austinhumans.model.PersonModel
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.BehaviorSubject
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_people.view.*
 import kotlinx.android.synthetic.main.item_people_detail.view.*
@@ -26,10 +30,45 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        var selectedPosition = BehaviorSubject.createDefault(0)
+        var compositeDisposable = CompositeDisposable()
+
         val adapter = Adapter(
                 { R.layout.item_people },
                 { PeopleViewHolder(it) },
-                { viewHolder, item: PersonModel -> viewHolder.itemView.name.text = item.name }
+                { viewHolder, item: PersonModel ->
+                    viewHolder.itemView.name.text = item.name
+                    viewHolder.itemView.newMessagesIndicator.visibility = if (item.name == "Amanda" || item.name == "Esther") View.VISIBLE else View.GONE
+
+                    viewHolder.disposable?.let { compositeDisposable.remove(it) }
+                    viewHolder.disposable = selectedPosition.subscribe {
+                        viewHolder.itemView.isSelected = it == viewHolder.adapterPosition
+                    }
+                    compositeDisposable.add(viewHolder.disposable!!)
+
+                    viewHolder.itemView.setOnClickListener {
+                        selectedPosition.onNext(viewHolder.adapterPosition)
+                        viewHolder.itemView.isSelected = true
+
+                        peopleDetailRecyclerView.isLayoutFrozen = false
+                        val smoothScroller = object : LinearSmoothScroller(this) {
+                            override fun getHorizontalSnapPreference(): Int {
+                                return LinearSmoothScroller.SNAP_TO_START
+                            }
+
+                            override fun calculateDxToMakeVisible(view: View?, snapPreference: Int): Int {
+                                return super.calculateDxToMakeVisible(view, snapPreference) -
+                                        resources.getDimensionPixelSize(R.dimen.pad2x) / 2
+
+                            }
+                        }
+
+                        smoothScroller.targetPosition = viewHolder.adapterPosition
+
+                        (peopleDetailRecyclerView.layoutManager as LinearLayoutManager).startSmoothScroll(smoothScroller)
+                    }
+                }
         )
 
         val items = mutableListOf(
@@ -55,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                     val viewHolder = PeopleDetailViewHolder(it)
                     peopleDetailRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                            if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                            if (newState != RecyclerView.SCROLL_STATE_IDLE) {
                                 viewHolder.itemView.contentScrollView.smoothScrollTo(0, 0)
                             }
                         }
@@ -89,6 +128,15 @@ class MainActivity : AppCompatActivity() {
             }
             false
         }
+
+        peopleDetailRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    selectedPosition.onNext((peopleDetailRecyclerView.layoutManager as LinearLayoutManager)
+                            .findFirstVisibleItemPosition())
+                }
+            }
+        })
 
         val snapHelper = PagerSnapHelper()
         snapHelper.attachToRecyclerView(peopleDetailRecyclerView)
@@ -151,7 +199,7 @@ class Adapter<VH : RecyclerView.ViewHolder, T> constructor(
                 onDataChanged?.invoke()
             }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             viewHolder.invoke(LayoutInflater.from(parent.context)
                     .inflate(layoutResId.invoke(viewType), parent, false))
 
@@ -160,5 +208,7 @@ class Adapter<VH : RecyclerView.ViewHolder, T> constructor(
         override fun getItemCount() = items.size
 }
 
-class PeopleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {}
+class PeopleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    var disposable: Disposable? = null
+}
 class PeopleDetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {}
