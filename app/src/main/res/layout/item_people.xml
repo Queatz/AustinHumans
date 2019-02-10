@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
@@ -7,15 +8,22 @@
     android:layout_height="64dp"
     android:layout_marginStart="@dimen/pad"
     android:layout_marginEnd="@dimen/pad"
-    android:background="@drawable/rounded_button"
+    android:background="@drawable/rounded_placeholder"
     android:elevation="@dimen/elevationHalf">
+
+    <ImageView
+        android:id="@+id/photo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:foreground="@drawable/rounded_button" />
 
     <TextView
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="@dimen/pad2x"
-        tools:text="Amanda"/>
+        tools:text="Amanda"
+        android:visibility="gone"/>
 
     <View
         android:id="@+id/newMessagesIndicator"

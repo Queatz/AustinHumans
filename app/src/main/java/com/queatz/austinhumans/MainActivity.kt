@@ -16,10 +16,13 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.queatz.austinhumans.model.PersonModel
+import com.squareup.picasso.Picasso
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.item_goal.view.*
 import kotlinx.android.synthetic.main.item_people.view.*
 import kotlinx.android.synthetic.main.item_people_detail.view.*
 import kotlinx.android.synthetic.main.item_people_detail.view.name as detailName
@@ -31,8 +34,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var selectedPosition = BehaviorSubject.createDefault(0)
-        var compositeDisposable = CompositeDisposable()
+        val selectedPosition = BehaviorSubject.createDefault(0)
+        val compositeDisposable = CompositeDisposable()
 
         val adapter = Adapter(
                 { R.layout.item_people },
@@ -43,13 +46,24 @@ class MainActivity : AppCompatActivity() {
 
                     viewHolder.disposable?.let { compositeDisposable.remove(it) }
                     viewHolder.disposable = selectedPosition.subscribe {
-                        viewHolder.itemView.isSelected = it == viewHolder.adapterPosition
+                        viewHolder.itemView.photo.isSelected = it == viewHolder.adapterPosition
                     }
                     compositeDisposable.add(viewHolder.disposable!!)
 
+                    Picasso.get().load(listOf(
+                            R.drawable.profile_1,
+                            R.drawable.profile_2,
+                            R.drawable.profile_3,
+                            R.drawable.profile_4,
+                            R.drawable.profile_5
+                    )[viewHolder.adapterPosition % 5])
+                            .fit()
+                            .transform(RoundedCornersTransformation(2056, 0))
+                            .into(viewHolder.itemView.photo)
+
                     viewHolder.itemView.setOnClickListener {
                         selectedPosition.onNext(viewHolder.adapterPosition)
-                        viewHolder.itemView.isSelected = true
+                        viewHolder.itemView.photo.isSelected = true
 
                         peopleDetailRecyclerView.isLayoutFrozen = false
                         val smoothScroller = object : LinearSmoothScroller(this) {
@@ -100,10 +114,29 @@ class MainActivity : AppCompatActivity() {
                         }
                     })
 
+                    viewHolder.itemView.goalsRecyclerView.layoutManager = LinearLayoutManager(this)
+
                     return@Adapter viewHolder
                 },
-                { viewHolder, item: PersonModel ->
-                    viewHolder.itemView.detailName.text = item.name
+                { viewHolder, person: PersonModel ->
+                    viewHolder.itemView.detailName.text = person.name
+
+                    val adapter = Adapter(
+                            { R.layout.item_goal },
+                            { GoalViewHolder(it) },
+                            { viewHolder, item: String ->
+                                viewHolder.itemView.goalName.text = item
+                                viewHolder.itemView.cheerButton.text = getString(R.string.cheer_person, person.name)
+                            }
+                    )
+
+                    adapter.items = mutableListOf(
+                            "Goal #1",
+                            "Goal #2",
+                            "Goal #3"
+                    )
+
+                    viewHolder.itemView.goalsRecyclerView.adapter = adapter
                 },
                 { peopleDetailRecyclerView.post {
                     peopleDetailRecyclerView.scrollBy(resources.getDimensionPixelSize(R.dimen.pad2x) / 2, 0)
@@ -212,3 +245,4 @@ class PeopleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var disposable: Disposable? = null
 }
 class PeopleDetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {}
+class GoalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {}

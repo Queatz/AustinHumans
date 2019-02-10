@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Austin Humans</string>
+    <string name="cheer_person">Cheer %1$s</string>
 </resources>

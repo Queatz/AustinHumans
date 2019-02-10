@@ -2,6 +2,7 @@
 <resources>
     <dimen name="pad">8dp</dimen>
     <dimen name="elevation">8dp</dimen>
+    <dimen name="cornerRadiusHalf">12dp</dimen>
     <dimen name="cornerRadius">24dp</dimen>
     <dimen name="pad2x">16dp</dimen>
     <dimen name="elevation2x">16dp</dimen>
