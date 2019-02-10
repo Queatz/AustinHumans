@@ -64,7 +64,12 @@ class MainActivity : AppCompatActivity() {
                             .into(viewHolder.itemView.photo)
 
                     viewHolder.itemView.setOnClickListener {
-                        selectedPosition.onNext(viewHolder.adapterPosition)
+                        if (selectedPosition.value == viewHolder.adapterPosition) {
+                            startActivity(Intent(this, MessagesActivity::class.java))
+                        } else {
+                            selectedPosition.onNext(viewHolder.adapterPosition)
+                        }
+
                         viewHolder.itemView.photo.isSelected = true
 
                         peopleDetailRecyclerView.isLayoutFrozen = false
@@ -151,7 +156,6 @@ class MainActivity : AppCompatActivity() {
                                     viewHolder.itemView.cheerButton.text = getString(R.string.cheer_person, person.name)
                                     viewHolder.itemView.setOnClickListener {
                                         startActivity(Intent(this, MessagesActivity::class.java))
-                                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                                     }
                                 }
                             }

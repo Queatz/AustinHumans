@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.item_message.view.*
 
 class MessagesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_messages)
 
@@ -38,6 +39,7 @@ class MessagesActivity : AppCompatActivity() {
                 { viewHolder, item: MessageModel ->
                     viewHolder.itemView.layout.layoutDirection = if (item.me) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
                     viewHolder.itemView.message.gravity = if (item.me) Gravity.END else Gravity.START
+                    viewHolder.itemView.message.textAlignment = if (item.me) View.TEXT_ALIGNMENT_TEXT_END else View.TEXT_ALIGNMENT_TEXT_START
 
                     Picasso.get().load(if (item.me) R.drawable.profile_1 else R.drawable.profile_2)
                             .fit()
