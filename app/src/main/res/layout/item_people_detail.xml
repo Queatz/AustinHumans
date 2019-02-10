@@ -47,7 +47,7 @@
                 android:gravity="center"
                 android:paddingBottom="@dimen/pad"
                 android:textColor="@color/text"
-                android:text="23, Austin, TX"
+                android:text="23, Manhattan, NYC"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
             <TextView
@@ -57,7 +57,7 @@
                 android:paddingTop="@dimen/pad2x"
                 android:paddingBottom="@dimen/pad"
                 android:textColor="@color/text"
-                android:text="Current Goals"
+                android:text="@string/current_goals"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
             <androidx.recyclerview.widget.RecyclerView

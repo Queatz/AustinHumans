@@ -93,12 +93,12 @@ class MainActivity : AppCompatActivity() {
         PersonModel("Esther"),
         PersonModel("Godwin"),
         PersonModel("Marshall"),
-        PersonModel("Sosamma"),
+        PersonModel("Heather"),
         PersonModel("Amanda"),
         PersonModel("Esther"),
         PersonModel("Godwin"),
         PersonModel("Marshall"),
-        PersonModel("Sosamma"))
+        PersonModel("Heather"))
 
         adapter.items = items
         peopleRecyclerView.adapter = adapter
