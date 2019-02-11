@@ -47,7 +47,7 @@
                 android:gravity="center"
                 android:paddingBottom="@dimen/pad"
                 android:textColor="@color/text"
-                android:text="23, Manhattan, NYC"
+                android:text="23, East Austin"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
             <TextView

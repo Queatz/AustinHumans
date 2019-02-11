@@ -59,6 +59,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:scrollbars="none"
-        android:overScrollMode="never" />
+        android:overScrollMode="never"
+        android:clipToPadding="false"
+        android:clipChildren="false" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

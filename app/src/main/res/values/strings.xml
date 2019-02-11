@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NYC Humans</string>
+    <string name="app_name">Austin Humans</string>
     <string name="cheer_person">Cheer %1$s</string>
     <string name="change_goal">Change goal</string>
     <string name="got_it">Got it</string>
