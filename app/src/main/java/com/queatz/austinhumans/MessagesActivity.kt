@@ -7,33 +7,44 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.queatz.austinhumans.clubs.ContextClub
+import com.queatz.austinhumans.clubs.PermissionClub
 import com.queatz.austinhumans.model.MessageModel
+import com.queatz.on.On
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 import kotlinx.android.synthetic.main.activity_messages.*
 import kotlinx.android.synthetic.main.item_message.view.*
 
 class MessagesActivity : AppCompatActivity() {
+
+    private val on = On()
+
+    private lateinit var adapter: Adapter<MessageViewHolder, MessageModel>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_messages)
 
+        on<ContextClub>().context = this
+
         sendButton.setOnClickListener {
-            messageInput.setText("")
+            on<MessagesActivityClub>().onSendButtonClicked()
         }
 
-        messageInput.setOnEditorActionListener { v, actionId, event ->
-            when (actionId) {
-                EditorInfo.IME_ACTION_SEND -> {
-                    messageInput.setText("")
-                }
+        messageInput.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                on<MessagesActivityClub>().onSendButtonClicked()
             }
-
             false
         }
 
-        val adapter = Adapter(
+        reportButton.setOnClickListener {
+            on<MessagesActivityClub>().onReportClicked()
+        }
+
+        adapter = Adapter(
                 { R.layout.item_message },
                 { MessageViewHolder(it) },
                 { viewHolder, item: MessageModel ->
@@ -49,21 +60,32 @@ class MessagesActivity : AppCompatActivity() {
                 }
         )
 
-        adapter.items = mutableListOf(
-            MessageModel("Hey thanks!"),
-            MessageModel("Hey thanks!", me = true),
-            MessageModel("Hey thanks!")
-        )
-
         messagesRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, true)
         messagesRecyclerView.adapter = adapter
 
-        closeButton.setOnClickListener { finish() }
+        closeButton.setOnClickListener {
+            on<MessagesActivityClub>().closePressed()
+        }
+
+        on<MessagesActivityClub>().onViewCreated()
+    }
+
+    fun showMessages(items: MutableList<MessageModel>) {
+        adapter.items = items
+    }
+
+    fun setSendText(sendText: String) {
+        messageInput.setText(sendText)
     }
 
     override fun finish() {
         super.finish()
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        on<PermissionClub>().onPermissionResult(requestCode, permissions, grantResults)
     }
 }
 

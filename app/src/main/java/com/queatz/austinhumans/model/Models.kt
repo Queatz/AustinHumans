@@ -1,6 +1,6 @@
 package com.queatz.austinhumans.model
 
-data class PersonModel (
+data class HumanModel (
         var name: String = "",
         val me: Boolean = false
 )

@@ -1,23 +1,21 @@
 package com.queatz.austinhumans
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ScrollView
-import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.queatz.austinhumans.model.PersonModel
+import com.queatz.austinhumans.clubs.ContextClub
+import com.queatz.austinhumans.clubs.PermissionClub
+import com.queatz.austinhumans.clubs.SnackbarClub
+import com.queatz.austinhumans.model.HumanModel
+import com.queatz.on.On
 import com.squareup.picasso.Picasso
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -32,17 +30,24 @@ import kotlinx.android.synthetic.main.item_people_detail.view.name as detailName
 
 class MainActivity : AppCompatActivity() {
 
+    private val on = On()
+
+    private lateinit var adapter: Adapter<PeopleViewHolder, HumanModel>
+    private lateinit var detailAdapter: Adapter<PeopleDetailViewHolder, HumanModel>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        on<ContextClub>().context = this
+
         val selectedPosition = BehaviorSubject.createDefault(0)
         val compositeDisposable = CompositeDisposable()
 
-        val adapter = Adapter(
+        adapter = Adapter(
                 { R.layout.item_people },
                 { PeopleViewHolder(it) },
-                { viewHolder, item: PersonModel ->
+                { viewHolder, item: HumanModel ->
                     viewHolder.itemView.name.text = item.name
                     viewHolder.itemView.newMessagesIndicator.visibility = if (item.name == "Amanda" || item.name == "Esther") View.VISIBLE else View.GONE
 
@@ -92,24 +97,10 @@ class MainActivity : AppCompatActivity() {
                 }
         )
 
-        val items = mutableListOf(
-                PersonModel("Alice (You)", me = true),
-        PersonModel("Amanda"),
-        PersonModel("Esther"),
-        PersonModel("Godwin"),
-        PersonModel("Marshall"),
-        PersonModel("Heather"),
-        PersonModel("Amanda"),
-        PersonModel("Esther"),
-        PersonModel("Godwin"),
-        PersonModel("Marshall"),
-        PersonModel("Heather"))
-
-        adapter.items = items
         peopleRecyclerView.adapter = adapter
         peopleRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
 
-        val detailAdapter = Adapter(
+        detailAdapter = Adapter(
                 { R.layout.item_people_detail },
                 {
                     val viewHolder = PeopleDetailViewHolder(it)
@@ -125,13 +116,13 @@ class MainActivity : AppCompatActivity() {
 
                     return@Adapter viewHolder
                 },
-                { viewHolder, person: PersonModel ->
-                    viewHolder.itemView.detailName.text = person.name
+                { viewHolder, human: HumanModel ->
+                    viewHolder.itemView.detailName.text = human.name
 
-                    if (person.me) {
+                    if (human.me) {
                         viewHolder.itemView.detailName.setOnClickListener {
                             AlertDialog.Builder(this)
-                                    .setPositiveButton(R.string.change_name, { dialog, which ->  })
+                                    .setPositiveButton(R.string.change_name) { dialog, which ->  }
                                     .show()
                         }
                     } else {
@@ -144,16 +135,16 @@ class MainActivity : AppCompatActivity() {
                             { viewHolder, item: String ->
                                 viewHolder.itemView.goalName.text = item
 
-                                if (person.me) {
+                                if (human.me) {
                                     viewHolder.itemView.cheerButton.text = getString(R.string.change_goal)
                                     viewHolder.itemView.setOnClickListener {
                                         AlertDialog.Builder(this)
-                                                .setPositiveButton(R.string.change_goal, { dialog, which ->  })
+                                                .setPositiveButton(R.string.change_goal) { dialog, which ->  }
                                                 .show()
                                     }
 
                                 } else {
-                                    viewHolder.itemView.cheerButton.text = getString(R.string.cheer_person, person.name)
+                                    viewHolder.itemView.cheerButton.text = getString(R.string.cheer_person, human.name)
                                     viewHolder.itemView.setOnClickListener {
                                         startActivity(Intent(this, MessagesActivity::class.java))
                                     }
@@ -161,19 +152,16 @@ class MainActivity : AppCompatActivity() {
                             }
                     )
 
+                    viewHolder.itemView.goalsRecyclerView.adapter = adapter
+
+                    // TODO("Move these out")
                     adapter.items = mutableListOf(
                             "\uD83C\uDF32 Spend a week in Upstate NY",
                             "Learn how to dance",
                             "Start doing yoga regularly \uD83E\uDDD8"
                     )
-
-                    viewHolder.itemView.goalsRecyclerView.adapter = adapter
                 },
-                { peopleDetailRecyclerView.post {
-                    peopleDetailRecyclerView.scrollBy(resources.getDimensionPixelSize(R.dimen.pad2x) / 2, 0)
-                } })
-
-        detailAdapter.items = items
+                { peopleDetailRecyclerView.post { peopleDetailRecyclerView.scrollBy(resources.getDimensionPixelSize(R.dimen.pad2x) / 2, 0) } })
 
         val decorator = MarginItemDecorator(resources.getDimensionPixelSize(R.dimen.pad2x))
         peopleDetailRecyclerView.addItemDecoration(decorator)
@@ -208,28 +196,25 @@ class MainActivity : AppCompatActivity() {
         snapHelper.attachToRecyclerView(peopleDetailRecyclerView)
 
         useLocationButton.setOnClickListener {
-            AlertDialog.Builder(this)
-                    .setMessage(R.string.sort_by_distance)
-                    .setNegativeButton(R.string.nope, { dialog, which ->  })
-                    .setPositiveButton(R.string.enable_location, { dialog, which ->  })
-                    .show()
+            on<MainActivityClub>().onUseLocationClicked()
         }
+
+        on<MainActivityClub>().onViewCreated()
     }
-}
 
-class SheetRecyclerView : RecyclerView {
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+    fun showHumans(items: MutableList<HumanModel>) {
+        adapter.items = items
+        detailAdapter.items = items
+    }
 
-    var onInterceptTouchEventListener: ((view: View, event: MotionEvent) -> Boolean)? = null
+    fun sortByDistance(sortByDistance: Boolean) {
+        useLocationButton.setImageResource(if (sortByDistance) R.drawable.ic_my_location_black_24dp else R.drawable.ic_location_disabled_black_24dp)
+        on<SnackbarClub>().show(if (sortByDistance) R.string.sort_by_distance_enabled else R.string.sort_by_distance_disabled)
+    }
 
-    override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
-        return if (onInterceptTouchEventListener?.invoke(this, event) == true) {
-            true
-        } else {
-            super.onInterceptTouchEvent(event)
-        }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        on<PermissionClub>().onPermissionResult(requestCode, permissions, grantResults)
     }
 }
 
@@ -240,46 +225,6 @@ class MarginItemDecorator(private val padding: Int) : RecyclerView.ItemDecoratio
         view.layoutParams.width = parent.width
         view.content.minimumHeight = parent.height - view.contentScrollView.paddingTop
     }
-}
-
-class ScrollSheet : ScrollView {
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-
-    init {
-        overScrollMode = ScrollView.OVER_SCROLL_NEVER
-        isVerticalScrollBarEnabled = false
-    }
-
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        return if (event.y > paddingTop - scrollY) super.onTouchEvent(event) else false
-    }
-
-}
-
-class Adapter<VH : RecyclerView.ViewHolder, T> constructor(
-        @LayoutRes private val layoutResId: (viewType: Int) -> Int,
-        private val viewHolder: (itemView: View) -> VH,
-        private val onBind: (viewHolder: VH, item: T) -> Unit,
-        private val onDataChanged: (() -> Unit)? = null
-) : RecyclerView.Adapter<VH>() {
-
-        var items = mutableListOf<T>()
-            set(value) {
-                field.clear()
-                field.addAll(value)
-                notifyDataSetChanged()
-                onDataChanged?.invoke()
-            }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            viewHolder.invoke(LayoutInflater.from(parent.context)
-                    .inflate(layoutResId.invoke(viewType), parent, false))
-
-        override fun onBindViewHolder(holder: VH, position: Int) = onBind.invoke(holder, items[position])
-
-        override fun getItemCount() = items.size
 }
 
 class PeopleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

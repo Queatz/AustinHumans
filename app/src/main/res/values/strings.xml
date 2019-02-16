@@ -5,7 +5,10 @@
     <string name="got_it">Got it</string>
     <string name="nope">Nope</string>
     <string name="sort_by_distance">Enable location access to sort people by distance from you.</string>
+    <string name="sort_by_distance_enabled">Sort by distance enabled</string>
+    <string name="sort_by_distance_disabled">Sort by distance disabled</string>
     <string name="enable_location">Enable location</string>
     <string name="change_name">Change name</string>
     <string name="current_goals">Current Goals</string>
+    <string name="report_user">Report user</string>
 </resources>

@@ -1,0 +1,30 @@
+
+
+
+Todo
+====
+
+[ ] Clean up MainActivity
+[ ] Clean up MessagesActivity
+
+[ ] Real data MainActivity
+[ ] Real data MessagesActivity
+
+[ ] Set up name, birthday, and goals flow
+
+[ ] Vlllage backend updates
+    [ ] Vlllage must support multiple app front-ends
+        [ ] Complication: Push Notifications must go to correct app
+
+[ ] Custom data for Austin Humans
+    [ ] Top three goals
+    [ ] About
+    [ ] Neighborhood
+    [ ] Birthday
+    [ ] Messages
+    [ ] Report user
+    [ ] Location on/off switch
+
+
+
+
