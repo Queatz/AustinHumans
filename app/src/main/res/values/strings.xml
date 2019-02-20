@@ -11,4 +11,5 @@
     <string name="change_name">Change name</string>
     <string name="current_goals">Current Goals</string>
     <string name="report_user">Report user</string>
+    <string name="change_photo">Change photo</string>
 </resources>

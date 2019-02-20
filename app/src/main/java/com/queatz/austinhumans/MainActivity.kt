@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.queatz.austinhumans.clubs.AlertClub
 import com.queatz.austinhumans.clubs.ContextClub
 import com.queatz.austinhumans.clubs.PermissionClub
 import com.queatz.austinhumans.clubs.SnackbarClub
@@ -47,13 +48,14 @@ class MainActivity : AppCompatActivity() {
         adapter = Adapter(
                 { R.layout.item_people },
                 { PeopleViewHolder(it) },
-                { viewHolder, item: HumanModel ->
-                    viewHolder.itemView.name.text = item.name
-                    viewHolder.itemView.newMessagesIndicator.visibility = if (item.name == "Amanda" || item.name == "Esther") View.VISIBLE else View.GONE
+                { viewHolder, human: HumanModel ->
+                    viewHolder.itemView.name.text = human.name
+                    viewHolder.itemView.newMessagesIndicator.visibility = if (human.name == "Amanda" || human.name == "Esther") View.VISIBLE else View.GONE
 
                     viewHolder.disposable?.let { compositeDisposable.remove(it) }
                     viewHolder.disposable = selectedPosition.subscribe {
                         viewHolder.itemView.photo.isSelected = it == viewHolder.adapterPosition
+                        peopleRecyclerView.smoothScrollToPosition(it)
                     }
                     compositeDisposable.add(viewHolder.disposable!!)
 
@@ -70,7 +72,11 @@ class MainActivity : AppCompatActivity() {
 
                     viewHolder.itemView.setOnClickListener {
                         if (selectedPosition.value == viewHolder.adapterPosition) {
-                            startActivity(Intent(this, MessagesActivity::class.java))
+                            if (human.me) {
+                                on<AlertClub>().show(R.string.change_photo)
+                            } else {
+                                startActivity(Intent(this, MessagesActivity::class.java))
+                            }
                         } else {
                             selectedPosition.onNext(viewHolder.adapterPosition)
                         }
